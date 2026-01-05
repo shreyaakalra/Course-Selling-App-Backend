@@ -38,3 +38,24 @@ app.post('/users/signup', (req,res) => {
     res.json({message: "user created successfully"});
 })
 
+// buy a specific course
+app.post('/users/courses/:courseId', authenticateJwt, async(req,res) => {
+    const courseId = req.params.courseId;
+
+    const course = await Course.findById(courseId);
+
+    if(course){
+        const user = await User.findOne({ username: req.user.username });
+
+        if(user){
+            user.purchasedCourses.push(course);
+            await user.save();
+
+            res.json({message: "course purchased successfully"});
+        } else{
+            res.status(403).json({message: "user not found"});
+        }
+    } else{
+        res.status(403).json({message: "course not found"});
+    }
+});
