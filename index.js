@@ -31,5 +31,10 @@ app.post('/usera/login', (req, res) => {
     }
 });
 
+// user sign-up route
+app.post('/users/signup', (req,res) => {
+    const { username, password} = req.body;
 
+    res.json({message: "user created successfully"});
+})
 
