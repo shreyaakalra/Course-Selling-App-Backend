@@ -84,5 +84,23 @@ app.get('/users/purchasedCourses', authenticateJwt, async (req, res) => {
 
 
 
+// ADMINS
+
+// admin signup route
+app.post('/admin/signup', async (req, res) => {
+    const { username, password } = req.body;
+
+    // check if admin already exists
+    const existingAdmin = await Admin.findOne({ username });
+
+    if(existingAdmin){
+        res.status(403).json({message: "admin already exists"});
+    } else {
+        const newAdmin = new Admin({ username, password });
+        await newAdmin.save();
+        const token = jwt.sign({ username, role: 'admin' });
+        res.json({message: "admin created successfully", token });
+    }
+});
 
 
