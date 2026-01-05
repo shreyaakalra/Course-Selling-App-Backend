@@ -122,3 +122,13 @@ app.post('/admin/courses', adminAuthentication, async (req,res) => {
     await course.save();
     res.json({ message: "Course created successfully", courseId: course.id })
 });
+
+// admin update course route
+app.put('/admin/courses/:courseId', adminAuthentication, async (req,res) => {
+    const course = await Course.findByIdAndUpdate(req.params.courseId, req.body, { new: true });
+    if(course){
+        res.json({ message: "course updated successfully" });
+    } else {
+        res.status(403).json({ message: "course not found" });
+    }
+});
