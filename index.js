@@ -115,3 +115,10 @@ app.post('/admin/login', async (req,res) => {
         res.status(403).json({message: "invalid credentials"});
     }
 });
+
+// admin create course route
+app.post('/admin/courses', adminAuthentication, async (req,res) => {
+    const course = new Course(req.body);
+    await course.save();
+    res.json({ message: "Course created successfully", courseId: course.id })
+});
