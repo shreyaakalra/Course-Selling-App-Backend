@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 
+const jwt = require('jsonewebtoken');
+
 // middleware : allows us to read the body
 app.use(express.json());
 
@@ -9,6 +11,25 @@ app.get('/', function(req,res){
 });
 
 // start the server on port 3000
-app.listen(3000, function(){
-    console.log('server is running on port 3000');
+app.listen(3000);
+
+// user login route
+app.post('/usera/login', (req, res) => {
+    const { username, password } = req.body;
+
+    const user = {
+        username: username,
+        password: password
+    };
+
+    if(user){
+        const token = generateToken(user);
+        res.json({message: "logged in successfully", token});
+    }
+    else{
+        res.status(403).json({message: "Invalid username or password"});
+    }
 });
+
+
+
