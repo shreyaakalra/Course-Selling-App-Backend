@@ -103,4 +103,15 @@ app.post('/admin/signup', async (req, res) => {
     }
 });
 
+// admin login route
+app.post('/admin/login', async (req,res) => {
+    const { username, password} = req.body;
+    const admin = await Admin.findOne({ username, password });
 
+    if(admin){
+        const token = jwt.sign({ username, role: "admin" });
+        res.json({ message: "logged in successfully", token });
+    } else {
+        res.status(403).json({message: "invalid credentials"});
+    }
+});
