@@ -132,3 +132,14 @@ app.put('/admin/courses/:courseId', adminAuthentication, async (req,res) => {
         res.status(403).json({ message: "course not found" });
     }
 });
+
+// admin delete course route
+app.delete('/admin/courses/courseId', adminAuthentication, async(req,res) => {
+    const course = await Course.findByAndDelete(req.params.courseId);
+
+    if(course){
+        res.json({message: "course deleted successfully"});
+    } else {
+        res.status(403).json({ message: 'course not found' });
+    }
+});
