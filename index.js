@@ -13,6 +13,8 @@ app.get('/', function(req,res){
 // start the server on port 3000
 app.listen(3000);
 
+// USERS
+
 // user login route
 app.post('/usera/login', (req, res) => {
     const { username, password } = req.body;
@@ -38,7 +40,7 @@ app.post('/users/signup', (req,res) => {
     res.json({message: "user created successfully"});
 })
 
-// buy a specific course
+// route to buy a specific course
 app.post('/users/courses/:courseId', authenticateJwt, async(req,res) => {
     const courseId = req.params.courseId;
 
@@ -59,3 +61,28 @@ app.post('/users/courses/:courseId', authenticateJwt, async(req,res) => {
         res.status(403).json({message: "course not found"});
     }
 });
+
+// route to see all available courses
+app.get('/users/courses', authenticateJwt, async (req, res) => {
+
+    const courses = await Course.find({published: true});
+    res.json({ courses });
+});
+
+// route to see the courses users bought
+app.get('/users/purchasedCourses', authenticateJwt, async (req, res) => {
+
+    const user = await User.findOne({ username: req.user.username }).populate('purchasedCourses');
+
+    if(user){
+        res.json({purchasedCourses: user.purchasedCourses || [] });
+    } else{
+        res.status(403).json({message: "user not found"});
+    }
+})
+
+
+
+
+
+
