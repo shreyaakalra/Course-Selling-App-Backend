@@ -1,62 +1,30 @@
 const Router = require("express");
 const adminRouter = Router();
+const { adminModel } = require("../db");
 
 // admin signup route
-adminRouter.post('/signup', async (req, res) => {
-    const { username, password } = req.body;
-
-    // check if admin already exists
-    const existingAdmin = await Admin.findOne({ username });
-
-    if(existingAdmin){
-        res.status(403).json({message: "admin already exists"});
-    } else {
-        const newAdmin = new Admin({ username, password });
-        await newAdmin.save();
-        const token = jwt.sign({ username, role: 'admin' });
-        res.json({message: "admin created successfully", token });
-    }
+adminRouter.post('/signup',(req, res) => {
+    res.json({message: "endpoint"});
 });
 
 // admin login route
-adminRouter.post('/login', async (req,res) => {
-    const { username, password} = req.body;
-    const admin = await Admin.findOne({ username, password });
-
-    if(admin){
-        const token = jwt.sign({ username, role: "admin" });
-        res.json({ message: "logged in successfully", token });
-    } else {
-        res.status(403).json({message: "invalid credentials"});
-    }
+adminRouter.post('/login',(req,res) => {
+    res.json({message: "endpoint"});
 });
 
 // admin create course route
-adminRouter.post('/createCourse', adminAuthentication, async (req,res) => {
-    const course = new Course(req.body);
-    await course.save();
-    res.json({ message: "Course created successfully", courseId: course.id })
+adminRouter.post('/createCourse',(req,res) => {
+    res.json({message: "endpoint"});
 });
 
 // admin update course route
-adminRouter.put('/updateCourse/:courseId', adminAuthentication, async (req,res) => {
-    const course = await Course.findByIdAndUpdate(req.params.courseId, req.body, { new: true });
-    if(course){
-        res.json({ message: "course updated successfully" });
-    } else {
-        res.status(403).json({ message: "course not found" });
-    }
+adminRouter.put('/updateCourse/:courseId',(req,res) => {
+    res.json({message: "endpoint"});
 });
 
 // admin delete course route
-adminRouter.delete('/deleteCourse/:courseId', adminAuthentication, async(req,res) => {
-    const course = await Course.findByAndDelete(req.params.courseId);
-
-    if(course){
-        res.json({message: "course deleted successfully"});
-    } else {
-        res.status(403).json({ message: 'course not found' });
-    }
+adminRouter.delete('/deleteCourse/:courseId',(req,res) => {
+    res.json({message: "endpoint"});
 });
 
 
