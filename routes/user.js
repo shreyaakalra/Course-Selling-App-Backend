@@ -3,6 +3,7 @@ const userRouter = Router();
 const { z } = require("zod");
 const { userModel } = require("../db")
 const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 
 // user sign-up route
 userRouter.post('/signup', async(req,res) => {
@@ -89,6 +90,7 @@ userRouter.post("/login", async (req, res) => {
         }
 
     } catch(e) {
+        console.log(e);
         res.status(500).json({
             message: "database error"
         });
@@ -99,7 +101,7 @@ userRouter.post("/login", async (req, res) => {
 
 // route to see the courses users bought
 userRouter.get("/purchasedCourses", (req, res) => {
-    
+
 });
 
 
