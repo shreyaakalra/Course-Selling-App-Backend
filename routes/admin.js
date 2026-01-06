@@ -1,15 +1,33 @@
 const Router = require("express");
 const adminRouter = Router();
+const { z } = require("zod");
 const { adminModel } = require("../db");
 
 // admin signup route
 adminRouter.post('/signup',(req, res) => {
-    res.json({message: "endpoint"});
+    const requiredBody = z.object({
+        email: z.string.min(3).max(100).email(),
+        password: z.string.min(5).max(30),
+        firstName: z.string().min(1).max(50),
+        lastName: z.string().min(1).max(50)
+    });
+
+    const parsedData = requiredBody.safeParse(req.body);
+
+    if(!parsedData.success){
+        return res.status(403).json({
+            message: "Incorrect data format",
+            error: parsedData.error
+        })
+    }
+
+    const{ email, password, firstName, lastName} = parsedData.data;
+    res.json({message: "sign up successful"});
 });
 
 // admin login route
 adminRouter.post('/login',(req,res) => {
-    res.json({message: "endpoint"});
+    
 });
 
 // admin create course route
