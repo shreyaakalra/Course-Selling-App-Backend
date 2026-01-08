@@ -1,11 +1,13 @@
 const { Router } = require("express");
 const userRouter = Router();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { z } = require("zod");
-const { userModel } = require("../db")
-const bcrypt = require("bcrypt")
-const jwt = require("jsonwebtoken")
+const { userModel } = require("../db");
+const { userMiddleware } = require("../config");
+const { purchaseModel } = require('../db')
 
-// user sign-up route
+// user sign-up route (checked)
 userRouter.post('/signup', async(req,res) => {
 
     const reqBody = z.object({
@@ -47,7 +49,7 @@ userRouter.post('/signup', async(req,res) => {
 
 })
 
-// user login route
+// user login route (checked)
 userRouter.post("/login", async (req, res) => {
 
     const reqBody = z.object({
@@ -100,12 +102,31 @@ userRouter.post("/login", async (req, res) => {
 });
 
 // route to see the courses users bought
-userRouter.get("/purchasedCourses", (req, res) => {
+userRouter.get("/purchasedCourses", userMiddleware, async(req, res) => {
+    const userId = req.userId;
+
+    try{
+        const purchases = await purchaseModel.find({ userId: userId }).populate("courseId");
+
+        const courses = purchases.map()(purchase => purchase.courseId);
+
+        if(!courses){
+            return res.json({message: "no courses found"});
+        }
+
+        res.json({
+            message: "your purchased courses:",
+            courses: courses
+        });
+
+    } catch (e) {
+        consol.log(e);
+        res.status(500).json({
+            message: "error fetching courses"
+        });
+    }
 
 });
-
-
-
 
 
 

@@ -1,13 +1,16 @@
-const Router = require("express");
+const { Router } = require("express");
 const adminRouter = Router();
 const { z } = require("zod");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const { adminModel } = require("../db");
+const { adminMiddleware } = require("../middlewares/admin");
 
-// admin signup route
-adminRouter.post('/signup',(req, res) => {
+// admin signup route (checked)
+adminRouter.post('/signup', async(req, res) => {
     const requiredBody = z.object({
-        email: z.string.min(3).max(100).email(),
-        password: z.string.min(5).max(30),
+        email: z.email().min(3).max(100),
+        password: z.string().min(5).max(30),
         firstName: z.string().min(1).max(50),
         lastName: z.string().min(1).max(50)
     });
@@ -22,17 +25,133 @@ adminRouter.post('/signup',(req, res) => {
     }
 
     const{ email, password, firstName, lastName} = parsedData.data;
-    res.json({message: "sign up successful"});
-});
 
-// admin login route
-adminRouter.post('/login',(req,res) => {
+    try {
+        const hashedPassword = await bcrypt.hash(password, 5);
+
+        await adminModel.create({
+            email: email,
+            password: hashedPassword,
+            firstName: firstName,
+            lastName: lastName
+        })
+
+        res.json({message: "sign up successful"});
+
+
+    } catch(e) {
+        console.log(e);
+        res.status(500).json({
+            message: "user already exists"
+        })
+    }
+
     
 });
 
+// admin login route (checked)
+adminRouter.post('/login',async (req,res) => {
+    const reqBody = z.object({
+        email: z.email().min(3).max(30),
+        password: z.string().min(6).max(13)
+    })
+
+    const parsedData = reqBody.safeParse(req.body);
+
+    if(!parsedData.success){
+        return res.status(403).json({
+            message: "invalid info",
+            error: parsedData.error
+        })
+
+    }
+
+    const { email, password } = parsedData.data;
+
+    try{
+
+        const admin = await adminModel.findOne({
+            email: email
+        });
+
+        if(!admin){
+
+            return res.status(403).json({message: "user doesn't exist"});
+
+        } else {
+
+            const passwordMatch = await bcrypt.compare(password, admin.password);
+
+            if(passwordMatch){
+                const token = jwt.sign({
+                id: admin._id,
+
+            }, "ADMIN_SECRET_KEY")
+
+            res.json({
+                message: "you're logged in",
+                token: token
+            });
+
+            } else {
+                res.status(403).json({
+                    message: "incorrect password"
+                });
+            }
+
+            
+        }
+
+    } catch(e) {
+        console.log(e);
+        return res.status(500).json({message: "database error"});
+    }
+});
+
 // admin create course route
-adminRouter.post('/createCourse',(req,res) => {
-    res.json({message: "endpoint"});
+adminRouter.post('/createCourse', adminMiddleware, async(req,res) => {
+
+    const requiredBody = z.object({
+        title: z.string().min(1).max(20),
+        description: z.string().min(10).max(150),
+        price: z.number().min(0),
+        imageUrl: z.url(),
+    });
+
+    const parsedData = requiredBody.safeParse(req.body);
+
+    if(!parsedData.success){
+        return res.status(400).json({
+            message: "invalid data",
+            error: parsedData.error
+        })
+    }
+
+    const{ title, description, price, imageUrl } = parsedData.data;
+
+    const adminId = req.userId;
+
+    try {
+        const course = await courseModel.create({
+            title: title,
+            description: description,
+            price: price,
+            imageUrl: imageurl,
+            creatorId: adminId
+        });
+
+        res.json({
+            message: "course created succesfully",
+            courseId: course._id
+        });
+
+    } catch(e) {
+        console.log(e)
+        res.status(500).json({
+            message: "failed to create course"
+        })
+    }
+
 });
 
 // admin update course route
