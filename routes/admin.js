@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { adminModel } = require("../db");
 const { adminMiddleware } = require("../middlewares/admin");
+const { JWT_ADMIN_PASSWORD } = require("../config");
 
 // admin signup route (checked)
 adminRouter.post('/signup', async(req, res) => {
@@ -86,7 +87,7 @@ adminRouter.post('/login',async (req,res) => {
                 const token = jwt.sign({
                 id: admin._id,
 
-            }, "ADMIN_SECRET_KEY")
+            }, "JWT_ADMIN_PASSWORD")
 
             res.json({
                 message: "you're logged in",
@@ -114,7 +115,7 @@ adminRouter.post('/createCourse', adminMiddleware, async(req,res) => {
     const requiredBody = z.object({
         title: z.string().min(1).max(20),
         description: z.string().min(10).max(150),
-        price: z.number().min(0),
+        price: z.coerce.number().min(0),
         imageUrl: z.url(),
     });
 
@@ -136,7 +137,7 @@ adminRouter.post('/createCourse', adminMiddleware, async(req,res) => {
             title: title,
             description: description,
             price: price,
-            imageUrl: imageurl,
+            imageUrl: imageUrl,
             creatorId: adminId
         });
 
