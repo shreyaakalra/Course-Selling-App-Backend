@@ -4,6 +4,7 @@ const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { adminModel } = require("../db");
+const { courseModel } = require("../db")
 const { adminMiddleware } = require("../middlewares/admin");
 const { JWT_ADMIN_PASSWORD } = require("../config");
 
@@ -48,7 +49,7 @@ adminRouter.post('/signup', async(req, res) => {
     }
 
     
-});
+})
 
 // admin login route (checked)
 adminRouter.post('/login',async (req,res) => {
@@ -87,7 +88,7 @@ adminRouter.post('/login',async (req,res) => {
                 const token = jwt.sign({
                 id: admin._id,
 
-            }, "JWT_ADMIN_PASSWORD")
+            }, JWT_ADMIN_PASSWORD)
 
             res.json({
                 message: "you're logged in",
@@ -116,7 +117,7 @@ adminRouter.post('/createCourse', adminMiddleware, async(req,res) => {
         title: z.string().min(1).max(20),
         description: z.string().min(10).max(150),
         price: z.coerce.number().min(0),
-        imageUrl: z.url(),
+        imageUrl: z.string().url(),
     });
 
     const parsedData = requiredBody.safeParse(req.body);

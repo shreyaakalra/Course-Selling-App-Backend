@@ -12,16 +12,15 @@ app.use("/user", userRouter);
 app.use("/course", courseRouter);
 app.use("/admin", adminRouter);
 
-
-
 async function main(){
-    await mongoose.connect("mongodb+srv://shreyaakalra_db_user:1R6W1dtr483aOHh1@cluster0.5tryxms.mongodb.net/coursera-app?retryWrites=true&w=majority&appName=Cluster0");
+    await mongoose.connect("mongodb+srv://shreyaakalra_db_user:1R6W1dtr483aOHh1@cluster0.5tryxms.mongodb.net/coursera-app");
     app.listen(3000);
     console.log("listening on port 3000")
 }
 
-
 main();
+
+
 
 
 
