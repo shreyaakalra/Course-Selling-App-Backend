@@ -110,7 +110,7 @@ adminRouter.post('/login',async (req,res) => {
     }
 });
 
-// admin create course route
+// admin create course route (checked)
 adminRouter.post('/createCourse', adminMiddleware, async(req,res) => {
 
     const requiredBody = z.object({
@@ -158,7 +158,9 @@ adminRouter.post('/createCourse', adminMiddleware, async(req,res) => {
 
 // admin update course route
 adminRouter.put('/updateCourse/:courseId',(req,res) => {
-    res.json({message: "endpoint"});
+    const newSchema = z.object({
+        
+    })
 });
 
 // admin delete course route

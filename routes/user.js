@@ -102,7 +102,7 @@ userRouter.post("/login", async (req, res) => {
 
 });
 
-// route to see the courses users bought
+// route to see the courses users bought (checked)
 userRouter.get("/purchasedCourses", userMiddleware, async(req, res) => {
     const userId = req.userId;
 
