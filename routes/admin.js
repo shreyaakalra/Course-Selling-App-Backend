@@ -157,10 +157,52 @@ adminRouter.post('/createCourse', adminMiddleware, async(req,res) => {
 });
 
 // admin update course route
-adminRouter.put('/updateCourse/:courseId',(req,res) => {
+adminRouter.put('/updateCourse/:courseId', adminMiddleware, async(req,res) => {
+    const adminId = req.userId;
+    const courseId = req.params.courseId;
+
     const newSchema = z.object({
-        
-    })
+        title: z.string().min(1).max(20).optional(),
+        description: z.string().min(10).max(150).optional(),
+        price: z.coerce.number().min(0).optional(),
+        imageUrl: z.string().url().optional(),
+    });
+
+    const parsedData = newSchema.safeParse(req.body);
+
+    if(!parsedData.success){
+        return res.status(400).json({
+            message: "invalid data",
+            error: parsedData.error
+        })
+    }
+
+    try{
+        const course = await courseModel.updateOne({
+            _id: courseId,
+            creatorID: adminId
+        },{
+            $set: parsedData.data
+        });
+
+        if(course.matchedCount === 0){
+            return res.status(404).json({
+                message: "course not found"
+            })
+        }
+
+        res.json({
+            message: "course updated successfully",
+            courseId: courseId
+        });
+
+    } catch(e) {
+        console.log(e);
+        res.status(500).json({
+            message: "update failed"
+        });
+    }
+
 });
 
 // admin delete course route
