@@ -206,8 +206,33 @@ adminRouter.put('/updateCourse/:courseId', adminMiddleware, async(req,res) => {
 });
 
 // admin delete course route
-adminRouter.delete('/deleteCourse/:courseId',(req,res) => {
-    res.json({message: "endpoint"});
+adminRouter.delete('/deleteCourse/:courseId', adminMiddleware, async(req,res) => {
+    const courseId = req.params.courseId;
+    const adminId = req.userId;
+
+    try{
+
+        const result = await courseModel.deleteOne({
+            _id: courseId,
+            creatorId: adminId
+        });
+
+        if(result.deletedCount === 0){
+            return res.status(404).json({
+                message: "course not found"
+            });
+        }
+
+        res.json({
+            message: "course deleted successfully"
+        });
+
+    } catch(e) {
+        console.log(e);
+        res.status(500).json({
+            message: "delete failed"
+        })
+    }
 });
 
 
